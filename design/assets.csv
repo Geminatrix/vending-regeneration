@@ -1,0 +1,6 @@
+id,role,type,description,size/ratio,style line ref,source
+bg-alley,main scene backdrop drawn under characters,background,"rainy nighttime side alley",16:9,STYLE FORMULA,procedural
+spr-hero,player character with procedural bob/expressions,sprite,"tiny cute uncanny cream-coral alley kid",1:1,STYLE FORMULA,procedural
+spr-machine,vending machine character with hum lights,sprite,"chunky anthropomorphic neon vending machine",1:1,STYLE FORMULA,procedural
+ui-dispense,item chip,ui,"cute sealed mystery can",1:1,STYLE FORMULA,procedural
+cover-scene,launch cover,background,"alley kid receiving glowing can from machine",3:2,STYLE FORMULA,procedural
