@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>VEND // REGENERATE</title>
+    <meta property="og:title" content="VEND // REGENERATE" />
+    <meta property="og:description" content="Type a whim into a humming alley vending machine. It invents a strange item and remakes you, the rain, or itself." />
+    <meta property="og:image" content="/assets/vend-og.png" />
+    <meta name="description" content="Type a whim into a humming alley vending machine. It invents a strange item and remakes you, the rain, or itself." />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #0a0d16; --fog: #141a2a; --paper: #f4efe6; --dim: #9aa6c3;
+        --coral: #ff8f70; --magenta: #ff4fd8; --cyan: #4de6ff; --lime: #b8ff5c;
+        --amber: #ffb454; --danger: #ff5d7a; --panel: rgba(10, 14, 28, 0.72);
+        --line: rgba(120, 170, 255, 0.22);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0; min-height: 100dvh; color: var(--paper);
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        background:
+          radial-gradient(1200px 700px at 70% 20%, rgba(255, 79, 216, 0.16), transparent 55%),
+          radial-gradient(900px 600px at 15% 80%, rgba(77, 230, 255, 0.12), transparent 50%),
+          linear-gradient(180deg, #070911 0%, #10182a 48%, #0a1020 100%);
+        overflow: hidden;
+      }
+      #app { height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; gap: 0.5rem; padding: 0.75rem; max-width: 1100px; margin: 0 auto; }
+      header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 0.25rem 0.35rem; }
+      .brand { font-family: "Pixelify Sans", sans-serif; font-weight: 700; font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: 0.04em; line-height: 1; text-shadow: 0 0 18px rgba(255, 79, 216, 0.35); }
+      .brand span { color: var(--cyan); }
+      .meta { color: var(--dim); font-size: 0.72rem; text-align: right; }
+      #stage-wrap { position: relative; min-height: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; background: #05070f; box-shadow: 0 20px 60px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.03); }
+      canvas#stage { width: 100%; height: 100%; display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: crosshair; }
+      .toast { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); max-width: min(92%, 420px); padding: 0.7rem 0.9rem; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(10px); text-align: center; pointer-events: none; opacity: 0; transition: opacity 180ms ease, transform 180ms ease; }
+      .toast.show { opacity: 1; }
+      .toast .item-name { font-family: "Pixelify Sans", sans-serif; font-size: 1.15rem; color: var(--lime); }
+      .toast .flavor { color: var(--dim); font-size: 0.78rem; margin-top: 0.25rem; }
+      .toast.omen .item-name { color: var(--danger); }
+      #hud { display: grid; grid-template-columns: 1.4fr 0.9fr; gap: 0.65rem; }
+      .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 0.75rem; backdrop-filter: blur(12px); }
+      .prompt-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+      #prompt { width: 100%; border: 1px solid var(--line); background: rgba(5, 8, 16, 0.85); color: var(--paper); border-radius: 12px; padding: 0.8rem 0.9rem; font: inherit; outline: none; }
+      #prompt:focus { border-color: rgba(77, 230, 255, 0.55); box-shadow: 0 0 0 3px rgba(77, 230, 255, 0.12); }
+      #vend { font-family: "Pixelify Sans", sans-serif; font-weight: 700; font-size: 1rem; border: 0; border-radius: 12px; padding: 0 1.1rem; cursor: pointer; color: #081018; background: linear-gradient(180deg, var(--lime), #86d63a); box-shadow: 0 0 22px rgba(184, 255, 92, 0.25); }
+      #vend:disabled { opacity: 0.5; cursor: wait; }
+      .hint { margin: 0.45rem 0 0; color: var(--dim); font-size: 0.72rem; }
+      .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+      .chip { border: 1px solid var(--line); background: rgba(255,255,255,0.03); color: var(--paper); border-radius: 999px; padding: 0.28rem 0.55rem; font-size: 0.7rem; cursor: pointer; }
+      .chip:hover { border-color: var(--cyan); color: var(--cyan); }
+      .codex h2 { margin: 0 0 0.45rem; font-family: "Pixelify Sans", sans-serif; font-size: 1rem; font-weight: 600; }
+      .tabs { display: flex; gap: 0.35rem; margin-bottom: 0.5rem; }
+      .tab { border: 1px solid var(--line); background: transparent; color: var(--dim); border-radius: 999px; padding: 0.25rem 0.6rem; font: inherit; font-size: 0.7rem; cursor: pointer; }
+      .tab.active { color: var(--ink); background: var(--cyan); border-color: var(--cyan); }
+      #codex-list { list-style: none; margin: 0; padding: 0; max-height: 132px; overflow: auto; display: grid; gap: 0.35rem; }
+      #codex-list li { display: grid; grid-template-columns: auto 1fr auto; gap: 0.45rem; align-items: center; padding: 0.4rem 0.5rem; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+      .glyph { width: 1.5rem; height: 1.5rem; display: grid; place-items: center; border-radius: 6px; font-size: 0.85rem; }
+      .name { font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sub { color: var(--dim); font-size: 0.65rem; }
+      .count { color: var(--amber); font-size: 0.65rem; }
+      #status { min-height: 1.1em; color: var(--dim); font-size: 0.75rem; margin: 0.35rem 0 0; }
+      #status.error { color: var(--danger); }
+      @media (max-width: 820px) {
+        body { overflow: auto; }
+        #app { height: auto; min-height: 100dvh; }
+        #hud { grid-template-columns: 1fr; }
+        #stage-wrap { min-height: 48vh; }
+        #codex-list { max-height: 160px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="brand">VEND <span>//</span> REGENERATE</div>
+        <div class="meta" id="meta">solo alley · discoveries saved locally</div>
+      </header>
+      <div id="stage-wrap">
+        <canvas id="stage" width="960" height="540" aria-label="Rainy alley and vending machine"></canvas>
+        <div class="toast" id="toast" role="status">
+          <div class="item-name" id="toast-name"></div>
+          <div class="flavor" id="toast-flavor"></div>
+        </div>
+      </div>
+      <div id="hud">
+        <section class="panel">
+          <form class="prompt-row" id="vend-form">
+            <input id="prompt" maxlength="64" autocomplete="off" spellcheck="false" placeholder="type a word, phrase, or emoji…" />
+            <button id="vend" type="submit">VEND</button>
+          </form>
+          <p class="hint">The machine listens. Your codex remembers every strange find.</p>
+          <div class="chips" id="chips"></div>
+          <p id="status">machine humming — your move</p>
+        </section>
+        <section class="panel codex">
+          <h2>Codex</h2>
+          <div class="tabs">
+            <button class="tab active" type="button" data-tab="items">Items</button>
+            <button class="tab" type="button" data-tab="transforms">Transforms</button>
+          </div>
+          <ul id="codex-list"></ul>
+        </section>
+      </div>
+    </div>
+    <script type="module" src="/game.js"></script>
+  </body>
+</html>
